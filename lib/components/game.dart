@@ -29,7 +29,7 @@ class MyPlatformGame extends FlameGame {
         platform.position.y - platform.size.y,
       ),
       scale: 0.7, // 크기 비율 조정 가능
-    );
+    );//wntjr
 
     add(player);
   }
