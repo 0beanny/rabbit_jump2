@@ -51,3 +51,5 @@ class Player extends SpriteComponent with HasGameReference<FlameGame> {
     );
   }
 }
+
+//이것은 찬영이가 하는 test입니다
