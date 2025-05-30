@@ -2,6 +2,7 @@ import 'package:flame/components.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:xml/xml.dart';
 import 'package:flame/game.dart';
+import 'package:rabbit_jump/components/game.dart';
 
 class Player extends SpriteComponent with HasGameReference<FlameGame> {
   Player({
@@ -16,13 +17,34 @@ class Player extends SpriteComponent with HasGameReference<FlameGame> {
   );
 
   double direction = 0;  // -1: 왼쪽, 1: 오른쪽, 0: 정지
-  final double moveSpeed = 300;
+  final double moveSpeed = 375;
+
+  double velocityY = 0;
+  final double gravity = 800; // 중력 가속도 (픽셀/초^2)
+  final double jumpForce = -500; // 점프시 위로 튀는 힘 (음수)
 
   @override
   void update(double dt) {
     super.update(dt);
     if (direction != 0) {
       position.x += direction * moveSpeed * dt;
+
+      // 화면 밖으로 못나가게 클램핑
+      final minX = size.x / 2; // 왼쪽 경계 (anchor가 bottomCenter이니까)
+      final maxX = game.size.x - size.x / 2; // 오른쪽 경계
+
+      position.x = position.x.clamp(minX, maxX);
+    }
+
+    velocityY += gravity * dt;
+    position.y += velocityY * dt;
+
+    // 바닥에 닿으면 다시 점프
+    final groundTopY = (game as MyPlatformGame).platformTopY;
+
+    if (position.y >= groundTopY) {
+      position.y = groundTopY;
+      velocityY = jumpForce;
     }
   }
 

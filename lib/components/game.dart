@@ -7,14 +7,17 @@ import 'package:flame/events.dart';
 
 class MyPlatformGame extends FlameGame with DragCallbacks {
   late Player player;
+  late StartingPlatform platform;
   Vector2? dragStart;
+
+  double get platformTopY => platform.position.y - platform.size.y;
 
   @override
   Color backgroundColor() => const Color(0xFF87CEEB); // 하늘색 배경
 
   @override
   Future<void> onLoad() async {
-    final platform = await StartingPlatform.load(
+    platform = await StartingPlatform.load(
       game: this,
       imagePath: 'assets/spritesheet_jumper.png',
       xmlPath: 'assets/spritesheet_jumper.xml',
@@ -29,9 +32,9 @@ class MyPlatformGame extends FlameGame with DragCallbacks {
       spriteName: 'bunny2_stand.png',
       position: Vector2(
         platform.size.x / 2,
-        platform.position.y - platform.size.y,
+        platformTopY,
       ),
-      scale: 0.7,
+      scale: 0.5,
     );
     add(player);
   }

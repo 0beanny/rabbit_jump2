@@ -41,7 +41,8 @@ class StartingPlatform extends SpriteComponent with HasGameReference<FlameGame> 
 
     final screenWidth = game.size.x;
     final scale = screenWidth / width;
-    final scaledSize = Vector2(screenWidth, height * scale);
+    final verticalScale = 0.5;
+    final scaledSize = Vector2(screenWidth, height * scale * verticalScale);
 
     final platform = StartingPlatform(sprite: sprite, size: scaledSize);
 
