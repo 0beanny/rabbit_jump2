@@ -15,6 +15,17 @@ class Player extends SpriteComponent with HasGameReference<FlameGame> {
     anchor: Anchor.bottomCenter,
   );
 
+  double direction = 0;  // -1: 왼쪽, 1: 오른쪽, 0: 정지
+  final double moveSpeed = 150;
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    if (direction != 0) {
+      position.x += direction * moveSpeed * dt;
+    }
+  }
+
   static Future<Player> load({
     required FlameGame game,
     required String imagePath,
@@ -51,5 +62,3 @@ class Player extends SpriteComponent with HasGameReference<FlameGame> {
     );
   }
 }
-
-//이것은 찬영이가 하는 test입니다
