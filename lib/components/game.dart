@@ -5,7 +5,7 @@ import 'package:rabbit_jump/components/starting_platform.dart';
 import 'package:rabbit_jump/components/player.dart';
 import 'package:flame/events.dart';
 
-class MyPlatformGame extends FlameGame {
+class MyPlatformGame extends FlameGame with DragCallbacks {
   late Player player;
   Vector2? dragStart;
 

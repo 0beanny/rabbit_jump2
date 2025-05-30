@@ -16,7 +16,7 @@ class Player extends SpriteComponent with HasGameReference<FlameGame> {
   );
 
   double direction = 0;  // -1: 왼쪽, 1: 오른쪽, 0: 정지
-  final double moveSpeed = 150;
+  final double moveSpeed = 300;
 
   @override
   void update(double dt) {
