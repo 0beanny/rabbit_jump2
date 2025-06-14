@@ -22,3 +22,4 @@ class ScoreOverlay extends StatelessWidget {
     );
   }
 }
+//   if (playerRight >= platformLeft && playerLeft <= platformRight) {

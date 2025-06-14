@@ -129,3 +129,4 @@ class Player extends SpriteComponent with HasGameReference<MyPlatformGame> {
     return player;
   }
 }
+// 이 코드는 Player 클래스를 정의하며, 플레이어의 움직임과 점프 기능을 구현합니다.

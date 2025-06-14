@@ -62,3 +62,4 @@ class WingmanObstacle extends SpriteComponent with HasGameReference<FlameGame> {
     }
   }
 }
+// The WingmanObstacle class represents an obstacle that moves horizontally across the screen.

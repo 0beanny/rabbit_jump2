@@ -17,3 +17,4 @@ class GameOverOverlay extends StatelessWidget {
     );
   }
 }
+// This widget can be used to display a game over message when the game ends.

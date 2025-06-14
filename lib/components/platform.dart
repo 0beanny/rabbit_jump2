@@ -38,3 +38,4 @@ class Platform extends SpriteComponent with HasGameReference<FlameGame> {
     return Platform(sprite: sprite, size: scaledSize, position: position);
   }
 }
+// The Platform class represents a platform in the game.

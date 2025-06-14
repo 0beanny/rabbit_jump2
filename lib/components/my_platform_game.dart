@@ -255,7 +255,7 @@ class MyPlatformGame extends FlameGame with DragCallbacks {
     // 플레이어가 점프(위로 이동)할 때만 발판 제거
     if (player.velocityY < 0) {
       platforms.removeWhere((platform) {
-        if (platform.position.y > player.position.y + screenHeight) {
+        if (platform.position.y > player.position.y + screenHeight * 0.5) {
           platform.removeFromParent();
           return true;
         }
@@ -282,6 +282,11 @@ class MyPlatformGame extends FlameGame with DragCallbacks {
         gameOver();
         break;
       }
+    }
+
+    // 시작 발판이 플레이어보다 너무 위에 있으면 제거
+    if (startPlatform.position.y > player.position.y + screenHeight * 0.5) {
+      startPlatform.removeFromParent();
     }
 
     prevPlayerY = player.position.y;

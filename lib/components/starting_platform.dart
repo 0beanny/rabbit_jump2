@@ -52,4 +52,5 @@ class StartingPlatform extends SpriteComponent with HasGameReference<FlameGame> 
     return platform;
   }
 }
+// The StartingPlatform class represents the initial platform in the game.
 
