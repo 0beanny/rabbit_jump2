@@ -2,9 +2,13 @@ import 'package:flame/components.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:xml/xml.dart';
 import 'package:flame/game.dart';
-import 'package:rabbit_jump/components/game.dart';
+import 'my_platform_game.dart';
+import 'platform.dart';
 
-class Player extends SpriteComponent with HasGameReference<FlameGame> {
+class Player extends SpriteComponent with HasGameReference<MyPlatformGame> {
+  late Sprite standSprite;
+  late Sprite jumpSprite;
+
   Player({
     required Sprite sprite,
     required Vector2 size,
@@ -16,35 +20,62 @@ class Player extends SpriteComponent with HasGameReference<FlameGame> {
     anchor: Anchor.bottomCenter,
   );
 
-  double direction = 0;  // -1: 왼쪽, 1: 오른쪽, 0: 정지
+  double direction = 0;
   final double moveSpeed = 375;
-
   double velocityY = 0;
-  final double gravity = 800; // 중력 가속도 (픽셀/초^2)
-  final double jumpForce = -500; // 점프시 위로 튀는 힘 (음수)
+  final double gravity = 800;
+  final double jumpForce = -800;
 
   @override
   void update(double dt) {
     super.update(dt);
+
+    // 좌우 이동
     if (direction != 0) {
       position.x += direction * moveSpeed * dt;
-
-      // 화면 밖으로 못나가게 클램핑
-      final minX = size.x / 2; // 왼쪽 경계 (anchor가 bottomCenter이니까)
-      final maxX = game.size.x - size.x / 2; // 오른쪽 경계
-
+      final minX = size.x / 2;
+      final maxX = game.size.x - size.x / 2;
       position.x = position.x.clamp(minX, maxX);
     }
 
+    // 중력 적용
     velocityY += gravity * dt;
     position.y += velocityY * dt;
 
-    // 바닥에 닿으면 다시 점프
-    final groundTopY = (game as MyPlatformGame).platformTopY;
+    // 충돌 검사 (발판 전체 검사)
+    for (final platform in [game.startPlatform, ...game.platforms]) {
+      final topY = platform.position.y - platform.size.y;
 
-    if (position.y >= groundTopY) {
-      position.y = groundTopY;
-      velocityY = jumpForce;
+      if (topY > position.y + size.y) continue; // 너무 아래는 패스
+
+      if (velocityY >= 0) {  // 아래로 떨어질 때만 검사
+        final distanceToPlatform = position.y - topY;
+
+        if (distanceToPlatform >= 0 && distanceToPlatform <= 40) {
+          // X축 충돌 추가 검사
+          final platformLeft = platform.position.x;
+          final platformRight = platform.position.x + platform.size.x;
+
+          final playerLeft = position.x - size.x / 2;
+          final playerRight = position.x + size.x / 2;
+
+          final isOverlappingX = playerRight >= platformLeft && playerLeft <= platformRight;
+
+          if (isOverlappingX) {
+            position.y = topY;
+            velocityY = jumpForce;
+            game.onPlatformStepped(platform.position.y);
+            break;
+          }
+        }
+      }
+    }
+
+    // 점프(위로 이동) 중이면 점프 스프라이트, 아니면 스탠드 스프라이트
+    if (velocityY < 0) {
+      sprite = jumpSprite;
+    } else {
+      sprite = standSprite;
     }
   }
 
@@ -60,27 +91,41 @@ class Player extends SpriteComponent with HasGameReference<FlameGame> {
     final xmlString = await rootBundle.loadString(xmlPath);
     final document = XmlDocument.parse(xmlString);
 
-    final element = document
-        .findAllElements('SubTexture')
-        .firstWhere((e) => e.getAttribute('name') == spriteName);
-
-    final x = double.parse(element.getAttribute('x')!);
-    final y = double.parse(element.getAttribute('y')!);
-    final width = double.parse(element.getAttribute('width')!);
-    final height = double.parse(element.getAttribute('height')!);
-
-    final sprite = Sprite(
+    // stand sprite
+    final standElement = document.findAllElements('SubTexture')
+        .firstWhere((e) => e.getAttribute('name') == 'bunny2_stand.png');
+    final standX = double.parse(standElement.getAttribute('x')!);
+    final standY = double.parse(standElement.getAttribute('y')!);
+    final standWidth = double.parse(standElement.getAttribute('width')!);
+    final standHeight = double.parse(standElement.getAttribute('height')!);
+    final standSprite = Sprite(
       image,
-      srcPosition: Vector2(x, y),
-      srcSize: Vector2(width, height),
+      srcPosition: Vector2(standX, standY),
+      srcSize: Vector2(standWidth, standHeight),
     );
 
-    final scaledSize = Vector2(width, height) * scale;
+    // jump sprite
+    final jumpElement = document.findAllElements('SubTexture')
+        .firstWhere((e) => e.getAttribute('name') == 'bunny2_jump.png');
+    final jumpX = double.parse(jumpElement.getAttribute('x')!);
+    final jumpY = double.parse(jumpElement.getAttribute('y')!);
+    final jumpWidth = double.parse(jumpElement.getAttribute('width')!);
+    final jumpHeight = double.parse(jumpElement.getAttribute('height')!);
+    final jumpSprite = Sprite(
+      image,
+      srcPosition: Vector2(jumpX, jumpY),
+      srcSize: Vector2(jumpWidth, jumpHeight),
+    );
 
-    return Player(
-      sprite: sprite,
+    // 기본 스프라이트는 stand로
+    final scaledSize = Vector2(standWidth, standHeight) * scale;
+    final player = Player(
+      sprite: standSprite,
       size: scaledSize,
       position: position,
     );
+    player.standSprite = standSprite;
+    player.jumpSprite = jumpSprite;
+    return player;
   }
 }
